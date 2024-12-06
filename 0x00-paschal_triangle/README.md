@@ -1,0 +1,1 @@
+A program to solve a Math problem by printing a paschal's triangle from a given 'n' number
