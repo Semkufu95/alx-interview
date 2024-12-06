@@ -10,8 +10,8 @@ def island_perimeter(grid):
     Args: grid (The perimeter of whole area)
     """
     perimeter = 0
-    height = len(grid)
-    width = len(grid[0]) if height > 0 else 0
+    heights = len(grid)
+    widths = len(grid[0]) if heights > 0 else 0
 
     for height in range(heights):
         for width in range(widths):
