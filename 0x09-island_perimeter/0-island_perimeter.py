@@ -21,11 +21,11 @@ def island_perimeter(grid):
                 # Check cells for row and columns
                 if height > 0 and grid[height - 1][width] == 1:
                     perimeter -= 1
-                if height < height - 1 and grid[height + 1][width] == 1:
+                if height < heights - 1 and grid[height + 1][width] == 1:
                     perimeter -= 1
                 if width > 0 and grid[height][width - 1] == 1:
                     perimeter -= 1
-                if width < width - 1 and grid[height][width + 1] == 1:
+                if width < widths - 1 and grid[height][width + 1] == 1:
                     perimeter -= 1
 
     return perimeter
