@@ -11,36 +11,40 @@ def print_solution(solution):
     print([[i, solution[i]] for i in range(len(solution))])
 
 
-def is_safe(solution, row, col):
-    """Checks if placing a queen at (row, col) is safe."""
-    for prev_row in range(row):
-        prev_col = solution[prev_row]
-        # Check column and diagonal conflicts
-        if prev_col == col or abs(prev_col - col) == abs(prev_row - row):
-            return False
-    return True
-
-
-def solve_nqueens(n, row, solution, results):
+def solve_nqueens(n, row, solution, columns, diag1, diag2, results):
     """Recursive backtracking function to find all solutions."""
     if row == n:
         results.append(solution[:])
-        print_solution(solution)
         return
 
     for col in range(n):
-        if is_safe(solution, row, col):
+        if not columns[col] and not diag1[row + col] and not diag2[row - col + n - 1]:
+            # Place the queen
             solution[row] = col
-            solve_nqueens(n, row + 1, solution, results)
+            columns[col] = diag1[row + col] = diag2[row - col + n - 1] = True
+
+            # Recurse to the next row
+            solve_nqueens(n, row + 1, solution, columns, diag1, diag2, results)
+
             # Backtrack
             solution[row] = -1
+            columns[col] = diag1[row + col] = diag2[row - col + n - 1] = False
 
 
 def nqueens(n):
     """Solves the N Queens problem and prints all solutions."""
     solution = [-1] * n  # -1 indicates no queen placed in the row yet
     results = []
-    solve_nqueens(n, 0, solution, results)
+
+    # Helper arrays to track column and diagonal conflicts
+    columns = [False] * n
+    diag1 = [False] * (2 * n - 1)
+    diag2 = [False] * (2 * n - 1)
+
+    solve_nqueens(n, 0, solution, columns, diag1, diag2, results)
+
+    for res in results:
+        print_solution(res)
 
 
 if __name__ == "__main__":
