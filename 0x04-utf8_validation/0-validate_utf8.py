@@ -11,33 +11,31 @@ def validUTF8(data):
     :param data: List of integers representing bytes of data
     :return: True if data is a valid UTF-8 encoding, else False
     """
-    num_bytes = 0
+    i = 0
+    while i < len(data):
+        byte = data[i]
 
-    # Masks to check the most significant bits
-    mask1 = 1 << 7  # 10000000
-    mask2 = 1 << 6  # 01000000
+        # 1-byte sequence: 0xxxxxxx
+        if byte & 0b10000000 == 0:
+            i += 1
+            continue
 
-    for byte in data:
-        # Ensure the byte is within 1-byte range
-        if byte > 255:
+        # Determine the number of bytes in the sequence
+        num_bytes = 0
+        if byte & 0b11100000 == 0b11000000:  # 2-byte sequence: 110xxxxx
+            num_bytes = 2
+        elif byte & 0b11110000 == 0b11100000:  # 3-byte sequence: 1110xxxx
+            num_bytes = 3
+        elif byte & 0b11111000 == 0b11110000:  # 4-byte sequence: 11110xxx
+            num_bytes = 4
+        else:
             return False
 
-        if num_bytes == 0:
-            # Check how many bytes the UTF-8 character should have
-            if byte & mask1 == 0:
-                continue  # 1-byte character
-            mask = mask1
-            while byte & mask:
-                num_bytes += 1
-                mask >>= 1
-            # UTF-8 characters can only be 1 to 4 bytes long
-            if num_bytes == 1 or num_bytes > 4:
-                return False
-        else:
-            # Check if the byte is a continuation byte
-            if not (byte & mask1 and not (byte & mask2)):
+        # Check continuation bytes
+        for j in range(1, num_bytes):
+            if i + j >= len(data) or data[i + j] & 0b11000000 != 0b10000000:
                 return False
 
-        num_bytes -= 1
+        i += num_bytes
 
-    return num_bytes == 0
+    return True
