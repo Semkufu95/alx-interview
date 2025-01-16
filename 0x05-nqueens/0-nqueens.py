@@ -1,65 +1,115 @@
 #!/usr/bin/python3
-'''
-A module to solve the n queens
-'''
+
+"""
+N Queens Solver (Python)
+
+This script solves the N Queens problem using a backtracking
+approach. It places N non-attacking queens on an N×N chessboard
+and prints all possible solutions.
+
+Usage:
+    ./0-nqueens.py N
+
+Arguments:
+    N: An integer greater than or equal to 4 representing the size
+       of the chessboard.
+"""
 
 import sys
+from typing import List
 
 
-def print_solution(solution):
-    """Prints a single solution in the required format."""
-    print([[i, solution[i]] for i in range(len(solution))])
+def print_usage_and_exit() -> None:
+    """
+    Prints the usage message and exits the program with status 1.
+    """
+    print("Usage: nqueens N")
+    sys.exit(1)
 
 
-def solve_nqueens(n, row, solution, columns, diag1, diag2, results):
-    """Recursive backtracking function to find all solutions."""
+def validate_n(n: str) -> int:
+    """
+    Validates the input number N.
+
+    Args:
+        n (str): The input number as a string.
+
+    Returns:
+        int: The validated number.
+
+    Raises:
+        SystemExit: If N is not an integer or is less than 4.
+    """
+    if not n.isdigit():
+        print("N must be a number")
+        sys.exit(1)
+    n = int(n)
+    if n < 4:
+        print("N must be at least 4")
+        sys.exit(1)
+    return n
+
+
+def is_valid(board: List[int], row: int, col: int) -> bool:
+    """
+    Checks if placing a queen at (row, col) is valid.
+
+    Args:
+        board (List[int]): The current state of the board.
+        row (int): The row where the queen is to be placed.
+        col (int): The column where the queen is to be placed.
+
+    Returns:
+        bool: True if the position is valid, False otherwise.
+    """
+    for i in range(row):
+        if (board[i] == col or
+                board[i] - i == col - row or
+                board[i] + i == col + row):
+            return False
+    return True
+
+
+def solve_nqueens(n: int, board: List[int], row: int) -> None:
+    """
+    Solves the N Queens problem using backtracking.
+
+    Args:
+        n (int): The size of the chessboard.
+        board (List[int]): The current state of the board.
+        row (int): The current row being processed.
+    """
     if row == n:
-        results.append(solution[:])
+        solutions.append([[i, board[i]] for i in range(n)])
         return
 
     for col in range(n):
-        if not columns[col] and not diag1[row + col] and not diag2[row - col + n - 1]:
-            # Place the queen
-            solution[row] = col
-            columns[col] = diag1[row + col] = diag2[row - col + n - 1] = True
-
-            # Recurse to the next row
-            solve_nqueens(n, row + 1, solution, columns, diag1, diag2, results)
-
-            # Backtrack
-            solution[row] = -1
-            columns[col] = diag1[row + col] = diag2[row - col + n - 1] = False
+        if is_valid(board, row, col):
+            board[row] = col
+            solve_nqueens(n, board, row + 1)
+            board[row] = -1
 
 
-def nqueens(n):
-    """Solves the N Queens problem and prints all solutions."""
-    solution = [-1] * n  # -1 indicates no queen placed in the row yet
-    results = []
+def main() -> None:
+    """
+    Main function to handle input and start solving the N Queens
+    problem.
+    """
+    if len(sys.argv) != 2:
+        print_usage_and_exit()
 
-    # Helper arrays to track column and diagonal conflicts
-    columns = [False] * n
-    diag1 = [False] * (2 * n - 1)
-    diag2 = [False] * (2 * n - 1)
+    n = sys.argv[1]
+    n = validate_n(n)
 
-    solve_nqueens(n, 0, solution, columns, diag1, diag2, results)
+    global solutions
+    solutions = []
 
-    for res in results:
-        print_solution(res)
+    board = [-1] * n
+    solve_nqueens(n, board, 0)
+
+    for solution in solutions:
+        print(solution)
 
 
 if __name__ == "__main__":
-    if len(sys.argv) != 2:
-        print("Usage: nqueens N")
-        sys.exit(1)
-
-    try:
-        N = int(sys.argv[1])
-    except ValueError:
-        print("N must be a number")
-        sys.exit(1)
-
-    if N < 4:
-        print("N must be at least 4")
-        sys.exit(1)
-
-    nqueens(N)
+    main()
